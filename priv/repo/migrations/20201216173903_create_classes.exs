@@ -3,9 +3,10 @@ defmodule Juserver.Repo.Migrations.CreateClasses do
 
   def change do
     create table(:classes) do
-      add :day, :string
+      add :date, :string
       add :hour, :float
       add :activity, :string
+      add :name, :string
 
       timestamps()
     end

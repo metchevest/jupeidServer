@@ -4,10 +4,12 @@ defmodule Juserver.Activities.Class do
 
   schema "classes" do
     field :activity, :string
-    field :day, :string
+    field :date, :string
     field :hour, :float
+    field :name, :string
 
     belongs_to :group, Juserver.Groups.Group
+    belongs_to :user, Juserver.Accounts.User
 
     timestamps()
   end
@@ -15,7 +17,7 @@ defmodule Juserver.Activities.Class do
   @doc false
   def changeset(class, attrs) do
     class
-    |> cast(attrs, [:day, :hour, :activity])
-    |> validate_required([:day, :hour, :activity])
+    |> cast(attrs, [:date, :hour, :activity, :name])
+    |> validate_required([:date, :hour, :activity])
   end
 end

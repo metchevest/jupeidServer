@@ -51,10 +51,23 @@ defmodule JuserverWeb.Endpoint do
   # plug Absinthe.Plug,
   #   schema: JuserverWeb.Schema
 
-  plug CORSPlug
+  # plug CORSPlug
+
+  # plug Corsica, origins: "*"
+
+  plug Corsica,
+    origins: [
+      "http://localhost:3000"
+    ],
+    allow_headers: :all,
+    allow_credentials: true,
+    log: [rejected: :error, invalid: :warn, accepted: :debug]
+
+  plug JuserverWeb.Context
 
   plug Absinthe.Plug.GraphiQL,
-    schema: JuserverWeb.Schema
+    schema: JuserverWeb.Schema,
+    before_send: {JuserverWeb.Authentication.AbsintheCookieResponse, :absinthe_before_send}
 
   # plug Plug.MethodOverride
   # plug Plug.Head

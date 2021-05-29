@@ -3,6 +3,8 @@ defmodule Juserver.Accounts do
   The Accounts context.
   """
 
+  alias Argon2
+
   import Ecto.Query, warn: false
   alias Juserver.Repo
 
@@ -15,6 +17,43 @@ defmodule Juserver.Accounts do
 
   def query(queryable, _params) do
     queryable
+  end
+
+  def authenticate_user(username, plain_text_password) do
+    query = from u in User, where: u.name == ^username
+
+    verify_user(query, plain_text_password)
+  end
+
+  def login_with_email_pass(email, plain_text_password) do
+    query = from u in User, where: u.email == ^email
+
+    verify_user(query, plain_text_password)
+  end
+
+  def verify_user(query, plain_text_password) do
+    case Repo.one(query) do
+      nil ->
+        Argon2.no_user_verify()
+        {:error, :invalid_credentials}
+
+      user ->
+        if Argon2.verify_pass(plain_text_password, user.password) do
+          {:ok, user}
+        else
+          {:error, :invalid_credentials}
+        end
+    end
+  end
+
+  def store_token(%User{} = user, token) do
+    update_user(user, %{token: token})
+  end
+
+  def revoke_token(%User{} = user) do
+    user
+    |> User.store_token_changeset(%{token: nil})
+    |> Repo.update()
   end
 
   @doc """
@@ -128,5 +167,27 @@ defmodule Juserver.Accounts do
     |> Groups.create_group()
     |> elem(1)
     |> add_group_to_user(user)
+  end
+
+  def create_new_user(%{email: email, password: password}) do
+    case check_new_email(email) do
+      true -> {:error, "E-mail already in use"}
+      false -> send_unique_mail_user(create_user(%{email: email, password: password}))
+    end
+  end
+
+  def send_unique_mail_user({:ok, user}) do
+    {:ok, user}
+  end
+
+  def send_unique_mail_user({:error, _msg}) do
+    {:error, "Not now."}
+  end
+
+  def check_new_email(email) do
+    case Repo.all(from u in User, where: u.email == ^email) do
+      [] -> false
+      _list -> true
+    end
   end
 end

@@ -7,6 +7,9 @@ defmodule Juserver.Repo.Migrations.CreateUsers do
       add :facebook_id, :string
       add :fantasy_name, :string
       add :month_income, :float
+      add :email, :string
+      add :password, :string
+      add :token, :text
 
       timestamps()
     end

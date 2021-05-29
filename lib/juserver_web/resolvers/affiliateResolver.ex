@@ -1,42 +1,36 @@
 defmodule JuserverWeb.AffiliateResolver do
   alias Juserver.Groups
+  alias JuserverWeb.Checkout
 
-  def user_affiliates(_root, %{id: id}, _info) do
-    case Groups.list_user_affiliates(id) do
-      nil -> {:error, "Didn't found aggiliates for the user id: #{id}"}
+  def all_affiliates(_args, %{context: %{current_user: current_user}}) do
+    case Groups.list_user_affiliates(current_user) do
+      nil -> {:error, "Didn't found affiliates"}
       list_of_affiliates -> {:ok, list_of_affiliates}
     end
   end
 
-  def get_affiliate(_root, args, _info) do
-    IO.puts("En el resolver")
-    IO.inspect(args)
+  def all_affiliates(_args, _info) do
+    {:error, "Not Authorized"}
+  end
 
-    case Groups.get_affilite_user(args) do
-      nil -> {:error, "Affiliate not found"}
+  def create_affiliate(%{name: name, email: email}, %{
+        context: %{current_user: current_user}
+      }) do
+    case Groups.create_user_affiliate(%{user: current_user, name: name, email: email}) do
+      nil -> {:error, "Not now."}
       affiliate -> {:ok, affiliate}
     end
   end
 
-  def get_affiliate_groups(_root, args, _info) do
-    case Groups.get_affiliate_groups(args) do
-      nil -> {:error, "Affiliates not found for the group"}
-      list_of_groups -> {:ok, list_of_groups}
-    end
+  def create_affiliate(_args, _info) do
+    {:error, "Not Authorized"}
   end
 
-  def get_affiliate_payments(_root, args, _info) do
-    case Groups.get_affiliate_payments(args) do
-      nil -> {:error, "Payments not found"}
-      list_of_payments -> {:ok, list_of_payments}
-    end
+  def delete_user_affiliate(%{id: id}, %{context: %{current_user: current_user}}) do
+    Checkout.checkout_response(Groups.delete_user_affiliate(id, current_user))
   end
 
-  def create_affiliate(_root, args, _info) do
-    {:ok, Groups.create_user_affiliate(args)}
-  end
-
-  def create_payment(_root, args, _info) do
-    {:ok, Groups.create_user_payment(args)}
+  def delete_user_affiliate(_args, _info) do
+    {:error, "Not Authorized"}
   end
 end

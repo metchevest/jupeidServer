@@ -20,6 +20,8 @@ defmodule JuserverWeb.Router do
   forward "/graphiql", Absinthe.Plug.GraphiQL, schema: JuserverWeb.Schema
 
   forward "/", Absinthe.Plug, schema: JuserverWeb.Schema
+  # analyze_complexity: true,
+  # max_complexity: 1000,
 
   # Other scopes may use custom stacks.
   # scope "/api", JuserverWeb do

@@ -50,7 +50,10 @@ defmodule Juserver.MixProject do
       {:absinthe_plug, "~> 1.5.0"},
       {:poison, "~> 2.1.0"},
       {:dataloader, "~> 1.0.0"},
-      {:cors_plug, "~> 2.0"}
+      # {:cors_plug, "~> 2.0"},
+      {:guardian, "~> 2.0"},
+      {:argon2_elixir, "~> 2.0"},
+      {:corsica, "~> 1.0"}
     ]
   end
 

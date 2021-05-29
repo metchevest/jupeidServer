@@ -14,8 +14,13 @@ defmodule Juserver.Repo.Migrations.AddAssociations do
       add :user_id, references(:users)
     end
 
+    alter table(:affiliates) do
+      add :user_id, references(:users)
+    end
+
     alter table(:classes) do
       add :group_id, references(:groups)
+      add :user_id, references(:users)
     end
 
     alter table(:payments) do

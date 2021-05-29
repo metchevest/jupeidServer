@@ -11,7 +11,8 @@ defmodule Juserver.AccountsTest do
       facebook_id: "some facebook_id",
       fantasy_name: "some fantasy_name",
       month_income: 120.5,
-      name: "some name"
+      name: "some name",
+      password: "some pass"
     }
     @update_attrs %{
       facebook_id: "some updated facebook_id",
@@ -46,25 +47,8 @@ defmodule Juserver.AccountsTest do
       assert Accounts.get_user!(user.id) == user
     end
 
-    test "create_user/1 with valid data creates a user" do
-      assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
-      assert user.facebook_id == "some facebook_id"
-      assert user.fantasy_name == "some fantasy_name"
-      assert user.month_income == 120.5
-      assert user.name == "some name"
-    end
-
     test "create_user/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
-    end
-
-    test "update_user/2 with valid data updates the user" do
-      user = user_fixture()
-      assert {:ok, %User{} = user} = Accounts.update_user(user, @update_attrs)
-      assert user.facebook_id == "some updated facebook_id"
-      assert user.fantasy_name == "some updated fantasy_name"
-      assert user.month_income == 456.7
-      assert user.name == "some updated name"
     end
 
     test "update_user/2 with invalid data returns error changeset" do
@@ -90,6 +74,20 @@ defmodule Juserver.AccountsTest do
       assert (%Group{} = group) = Accounts.new_group_to_user(user, @valid_group)
 
       assert group.cost == @valid_group_cost
+    end
+
+    # This two tests are for the validation, Guardian.
+    test "create_user/1 with valid data creates a user" do
+      assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
+      assert {:ok, user} == Argon2.check_pass(user, "some password", hash_key: :password)
+      assert user.username == "some username"
+    end
+
+    test "update_user/2 with valid data updates the user" do
+      user = user_fixture()
+      assert {:ok, %User{} = user} = Accounts.update_user(user, @update_attrs)
+      assert {:ok, user} == Argon2.check_pass(user, "some updated password", hash_key: :password)
+      assert user.username == "some updated username"
     end
   end
 end

@@ -11,6 +11,9 @@ defmodule JuserverWeb.Schema.Types do
     field :fantasy_name, :string
     field :month_income, :float
     field :name, :string
+    field :email, :string
+    field :password, :string
+    field :token, :string
 
     field :groups, list_of(:group) do
       resolve(dataloader(Groups))
@@ -27,6 +30,8 @@ defmodule JuserverWeb.Schema.Types do
     field :id, :id
     field :date, :string
     field :hour, :float
+    field :name, :string
+    field :activity, :string
   end
 
   object :affiliate do

@@ -14,6 +14,8 @@ defmodule Juserver.Groups.Affiliate do
 
     has_many :payments, Juserver.Groups.Payment
 
+    belongs_to :user, Juserver.Accounts.User
+
     timestamps()
   end
 

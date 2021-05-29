@@ -23,7 +23,7 @@ defmodule Juserver.Groups.Group do
   @doc false
   def changeset(group, attrs) do
     group
-    |> cast(attrs, [:cost])
-    |> validate_required([:cost])
+    |> cast(attrs, [:cost, :name])
+    |> validate_required([:cost, :name])
   end
 end

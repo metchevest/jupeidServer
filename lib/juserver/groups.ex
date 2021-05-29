@@ -6,7 +6,7 @@ defmodule Juserver.Groups do
   import Ecto.Query, warn: false
   alias Juserver.Repo
 
-  alias Juserver.Groups.Group
+  alias Juserver.Groups.{Group, Affiliate, Payment}
   alias Juserver.Activities
   alias Juserver.Accounts.User
 
@@ -360,9 +360,9 @@ defmodule Juserver.Groups do
     Repo.all(from g in Group, inner_join: u in assoc(g, :user), where: u.id == ^id)
   end
 
-  def create_user_group(%{cost: cost, user_id: user_id}) do
-    Repo.one(from u in User, where: u.id == ^user_id)
-    |> Ecto.build_assoc(:groups, %{cost: cost})
+  def create_user_group(%{name: name, cost: cost, user: user}) do
+    Repo.one(from u in User, where: u.id == ^user.id)
+    |> Ecto.build_assoc(:groups, %{cost: cost, name: name})
     |> Repo.insert!()
   end
 
@@ -372,12 +372,11 @@ defmodule Juserver.Groups do
     )
   end
 
-  def list_user_affiliates(id) do
+  def list_user_affiliates(user) do
     Repo.all(
       from a in Affiliate,
-        inner_join: g in assoc(a, :groups),
-        inner_join: u in assoc(g, :user),
-        where: u.id == ^id
+        inner_join: u in assoc(a, :user),
+        where: u.id == ^user.id
     )
   end
 
@@ -390,21 +389,28 @@ defmodule Juserver.Groups do
     )
   end
 
-  def create_user_affiliate(%{email: email, user_id: user_id, name: name, group_id: group_id}) do
-    # TO-DO I'm not proud of this function. Improve.
-    group =
-      Repo.one(
-        from g in Group,
-          inner_join: u in assoc(g, :user),
-          where: u.id == ^user_id and g.id == ^group_id
-      )
-      |> Repo.preload(:affiliates)
+  # This is and old version of the function, now I'm creating the affiliate without the group
+  # def create_user_affiliate(%{email: email, user_id: user_id, name: name, group_id: group_id}) do
+  #   # TO-DO I'm not proud of this function. Improve.
+  #   group =
+  #     Repo.one(
+  #       from g in Group,
+  #         inner_join: u in assoc(g, :user),
+  #         where: u.id == ^user_id and g.id == ^group_id
+  #     )
+  #     |> Repo.preload(:affiliates)
 
-    affiliate = %Affiliate{email: email, name: name} |> Repo.insert!()
+  #   affiliate = %Affiliate{email: email, name: name} |> Repo.insert!()
 
-    add_affiliate_to_group(affiliate, group)
+  #   add_affiliate_to_group(affiliate, group)
 
-    affiliate
+  #   affiliate
+  # end
+
+  def create_user_affiliate(%{name: name, email: email, user: user}) do
+    Repo.one(from u in User, where: u.id == ^user.id)
+    |> Ecto.build_assoc(:affiliates, %{name: name, email: email})
+    |> Repo.insert!()
   end
 
   def get_affiliate_payments(%{id: id}) do
@@ -432,5 +438,38 @@ defmodule Juserver.Groups do
     Group
     |> Repo.get(id)
     |> Repo.delete()
+  end
+
+  def edit_user_group(%{id: id, cost: cost, name: name, user: user}) do
+    IO.puts("Estoy en el contexto con los datos")
+    IO.inspect(name)
+    IO.inspect(cost)
+
+    Repo.one(
+      from g in Group,
+        inner_join: u in assoc(g, :user),
+        where: g.id == ^id and u.id == ^user.id
+    )
+    |> update_group(%{cost: cost, name: name})
+  end
+
+  def delete_user_affiliate(id, user) do
+    Repo.one(
+      from a in Affiliate,
+        inner_join: u in assoc(a, :user),
+        where: a.id == ^id and u.id == ^user.id
+    )
+    |> Repo.delete!()
+  end
+
+  def edit_user_affiliate(%{id: id, name: name, email: email, user: user}) do
+    IO.puts("estyo en el contexto")
+
+    Repo.one(
+      from a in Affiliate,
+        inner_join: u in assoc(a, :user),
+        where: a.id == ^id and u.id == ^user.id
+    )
+    |> update_affiliate(%{name: name, email: email})
   end
 end
