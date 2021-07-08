@@ -8,7 +8,7 @@ defmodule Juserver.Activities do
 
   alias Juserver.Accounts.User
   alias Juserver.Activities.Class
-  alias Juserver.Groups.Group
+  alias Juserver.Groups.{Group, Student}
 
   def data() do
     Dataloader.Ecto.new(Juserver.Repo, query: &query/2)
@@ -115,10 +115,10 @@ defmodule Juserver.Activities do
   def get_user_class(user, class_id) do
     Repo.one(
       from c in Class,
-        inner_join: g in assoc(c, :group),
-        inner_join: u in assoc(g, :user),
+        inner_join: u in assoc(c, :user),
         where: u.id == ^user.id and c.id == ^class_id
     )
+    |> Repo.preload(:students)
   end
 
   def create_user_class(%{
@@ -126,12 +126,10 @@ defmodule Juserver.Activities do
         hour: hour,
         date: date,
         activity: activity,
-        current_user: current_user
+        user: user
       }) do
-    Repo.one(
-      from u in User,
-        where: u.id == ^current_user.id
-    )
+    user
+    |> Repo.preload(:classes)
     |> Ecto.build_assoc(:classes, %{name: name, hour: hour, date: date, activity: activity})
     |> Repo.insert!()
   end
@@ -154,11 +152,44 @@ defmodule Juserver.Activities do
     |> update_class(%{name: name, hour: hour, date: date, activity: activity})
   end
 
-  def list_user_classes(user) do
+  def list_user_classes(_args, user) do
     Repo.all(
       from c in Class,
         inner_join: u in assoc(c, :user),
         where: u.id == ^user.id
     )
+  end
+
+  def get_user_class_assistants(%{user: user, class_id: id}) do
+    Repo.all(
+      from a in Student,
+        inner_join: c in assoc(a, :classes),
+        inner_join: u in assoc(c, :user),
+        where: u.id == ^user.id and c.id == ^id
+    )
+  end
+
+  def add_many_students_to_class_from_list(class, students_list) do
+    new_students =
+      Enum.map(students_list, fn %{id: id} ->
+        Repo.get(Student, String.to_integer(id)) |> Repo.preload(:classes)
+      end)
+
+    add_many_students_to_class(class, Enum.uniq(new_students ++ class.students))
+  end
+
+  def add_many_students_to_class(class, students_list) do
+    class
+    |> Repo.preload(:students)
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(:students, students_list)
+    |> Repo.update!()
+
+    {:ok, Repo.preload(class, :students)}
+  end
+
+  def add_students_to_class(%{class_id: class_id, students: students_list}, user) do
+    get_user_class(user, class_id)
+    |> add_many_students_to_class_from_list(students_list)
   end
 end

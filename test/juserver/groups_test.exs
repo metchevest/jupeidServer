@@ -123,64 +123,64 @@ defmodule Juserver.GroupsTest do
     end
   end
 
-  describe "affiliates" do
-    alias Juserver.Groups.Affiliate
+  describe "students" do
+    alias Juserver.Groups.Student
 
     @valid_attrs %{email: "some email", name: "some name"}
     @update_attrs %{email: "some updated email", name: "some updated name"}
     @invalid_attrs %{email: nil, name: nil}
 
-    def affiliate_fixture(attrs \\ %{}) do
-      {:ok, affiliate} =
+    def student_fixture(attrs \\ %{}) do
+      {:ok, student} =
         attrs
         |> Enum.into(@valid_attrs)
-        |> Groups.create_affiliate()
+        |> Groups.create_student()
 
-      affiliate
+      student
     end
 
-    test "list_affiliates/0 returns all affiliates" do
-      affiliate = affiliate_fixture()
-      assert Groups.list_affiliates() == [affiliate]
+    test "list_students/0 returns all students" do
+      student = student_fixture()
+      assert Groups.list_students() == [student]
     end
 
-    test "get_affiliate!/1 returns the affiliate with given id" do
-      affiliate = affiliate_fixture()
-      assert Groups.get_affiliate!(affiliate.id) == affiliate
+    test "get_student!/1 returns the student with given id" do
+      student = student_fixture()
+      assert Groups.get_student!(student.id) == student
     end
 
-    test "create_affiliate/1 with valid data creates a affiliate" do
-      assert {:ok, %Affiliate{} = affiliate} = Groups.create_affiliate(@valid_attrs)
-      assert affiliate.email == "some email"
-      assert affiliate.name == "some name"
+    test "create_student/1 with valid data creates a student" do
+      assert {:ok, %Student{} = student} = Groups.create_student(@valid_attrs)
+      assert student.email == "some email"
+      assert student.name == "some name"
     end
 
-    test "create_affiliate/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Groups.create_affiliate(@invalid_attrs)
+    test "create_student/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Groups.create_student(@invalid_attrs)
     end
 
-    test "update_affiliate/2 with valid data updates the affiliate" do
-      affiliate = affiliate_fixture()
-      assert {:ok, %Affiliate{} = affiliate} = Groups.update_affiliate(affiliate, @update_attrs)
-      assert affiliate.email == "some updated email"
-      assert affiliate.name == "some updated name"
+    test "update_student/2 with valid data updates the student" do
+      student = student_fixture()
+      assert {:ok, %Student{} = student} = Groups.update_student(student, @update_attrs)
+      assert student.email == "some updated email"
+      assert student.name == "some updated name"
     end
 
-    test "update_affiliate/2 with invalid data returns error changeset" do
-      affiliate = affiliate_fixture()
-      assert {:error, %Ecto.Changeset{}} = Groups.update_affiliate(affiliate, @invalid_attrs)
-      assert affiliate == Groups.get_affiliate!(affiliate.id)
+    test "update_student/2 with invalid data returns error changeset" do
+      student = student_fixture()
+      assert {:error, %Ecto.Changeset{}} = Groups.update_student(student, @invalid_attrs)
+      assert student == Groups.get_student!(student.id)
     end
 
-    test "delete_affiliate/1 deletes the affiliate" do
-      affiliate = affiliate_fixture()
-      assert {:ok, %Affiliate{}} = Groups.delete_affiliate(affiliate)
-      assert_raise Ecto.NoResultsError, fn -> Groups.get_affiliate!(affiliate.id) end
+    test "delete_student/1 deletes the student" do
+      student = student_fixture()
+      assert {:ok, %Student{}} = Groups.delete_student(student)
+      assert_raise Ecto.NoResultsError, fn -> Groups.get_student!(student.id) end
     end
 
-    test "change_affiliate/1 returns a affiliate changeset" do
-      affiliate = affiliate_fixture()
-      assert %Ecto.Changeset{} = Groups.change_affiliate(affiliate)
+    test "change_student/1 returns a student changeset" do
+      student = student_fixture()
+      assert %Ecto.Changeset{} = Groups.change_student(student)
     end
   end
 end

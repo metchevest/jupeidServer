@@ -2,7 +2,7 @@ defmodule Juserver.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Juserver.Groups.{Group, Affiliate}
+  alias Juserver.Groups.{Group, Student}
   alias Juserver.Activities.Class
 
   schema "users" do
@@ -13,9 +13,10 @@ defmodule Juserver.Accounts.User do
     field :email, :string
     field :password, :string
     field :token, :string
+    field :tour, :boolean, default: false
 
     has_many :groups, Group
-    has_many :affiliates, Affiliate
+    has_many :students, Student
     has_many :classes, Class
 
     timestamps()
@@ -24,7 +25,16 @@ defmodule Juserver.Accounts.User do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:name, :facebook_id, :fantasy_name, :month_income, :email, :password, :token])
+    |> cast(attrs, [
+      :name,
+      :facebook_id,
+      :fantasy_name,
+      :month_income,
+      :email,
+      :password,
+      :token,
+      :tour
+    ])
     |> validate_required([:email, :password])
     |> put_password_hash()
   end

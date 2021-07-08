@@ -6,8 +6,9 @@ defmodule Juserver.Groups do
   import Ecto.Query, warn: false
   alias Juserver.Repo
 
-  alias Juserver.Groups.{Group, Affiliate, Payment}
-  alias Juserver.Activities
+  alias Juserver.Helpers
+  alias Juserver.Groups.{Group, Student}
+  alias Juserver.Activities.{Class}
   alias Juserver.Accounts.User
 
   def data() do
@@ -112,248 +113,98 @@ defmodule Juserver.Groups do
     Group.changeset(group, attrs)
   end
 
-  alias Juserver.Groups.Payment
-
   @doc """
-  Returns the list of payments.
+  Returns the list of students.
 
   ## Examples
 
-      iex> list_payments()
-      [%Payment{}, ...]
+      iex> list_students()
+      [%Student{}, ...]
 
   """
-  def list_payments do
-    Repo.all(Payment)
+  def list_students do
+    Repo.all(Student)
   end
 
   @doc """
-  Gets a single payment.
+  Gets a single student.
 
-  Raises `Ecto.NoResultsError` if the Payment does not exist.
+  Raises `Ecto.NoResultsError` if the Student does not exist.
 
   ## Examples
 
-      iex> get_payment!(123)
-      %Payment{}
+      iex> get_student!(123)
+      %Student{}
 
-      iex> get_payment!(456)
+      iex> get_student!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_payment!(id), do: Repo.get!(Payment, id)
+  def get_student!(id), do: Repo.get!(Student, id)
 
   @doc """
-  Creates a payment.
+  Creates a student.
 
   ## Examples
 
-      iex> create_payment(%{field: value})
-      {:ok, %Payment{}}
+      iex> create_student(%{field: value})
+      {:ok, %Student{}}
 
-      iex> create_payment(%{field: bad_value})
+      iex> create_student(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_payment(attrs \\ %{}) do
-    %Payment{}
-    |> Payment.changeset(attrs)
+  def create_student(attrs \\ %{}) do
+    %Student{}
+    |> Student.changeset(attrs)
     |> Repo.insert()
   end
 
   @doc """
-  Updates a payment.
+  Updates a student.
 
   ## Examples
 
-      iex> update_payment(payment, %{field: new_value})
-      {:ok, %Payment{}}
+      iex> update_student(student, %{field: new_value})
+      {:ok, %Student{}}
 
-      iex> update_payment(payment, %{field: bad_value})
+      iex> update_student(student, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_payment(%Payment{} = payment, attrs) do
-    payment
-    |> Payment.changeset(attrs)
+  def update_student(%Student{} = student, attrs) do
+    student
+    |> Student.changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
-  Deletes a payment.
+  Deletes a student.
 
   ## Examples
 
-      iex> delete_payment(payment)
-      {:ok, %Payment{}}
+      iex> delete_student(student)
+      {:ok, %Student{}}
 
-      iex> delete_payment(payment)
+      iex> delete_student(student)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_payment(%Payment{} = payment) do
-    Repo.delete(payment)
+  def delete_student(%Student{} = student) do
+    Repo.delete(student)
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking payment changes.
+  Returns an `%Ecto.Changeset{}` for tracking student changes.
 
   ## Examples
 
-      iex> change_payment(payment)
-      %Ecto.Changeset{data: %Payment{}}
+      iex> change_student(student)
+      %Ecto.Changeset{data: %Student{}}
 
   """
-  def change_payment(%Payment{} = payment, attrs \\ %{}) do
-    Payment.changeset(payment, attrs)
-  end
-
-  alias Juserver.Groups.Affiliate
-
-  @doc """
-  Returns the list of affiliates.
-
-  ## Examples
-
-      iex> list_affiliates()
-      [%Affiliate{}, ...]
-
-  """
-  def list_affiliates do
-    Repo.all(Affiliate)
-  end
-
-  @doc """
-  Gets a single affiliate.
-
-  Raises `Ecto.NoResultsError` if the Affiliate does not exist.
-
-  ## Examples
-
-      iex> get_affiliate!(123)
-      %Affiliate{}
-
-      iex> get_affiliate!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_affiliate!(id), do: Repo.get!(Affiliate, id)
-
-  @doc """
-  Creates a affiliate.
-
-  ## Examples
-
-      iex> create_affiliate(%{field: value})
-      {:ok, %Affiliate{}}
-
-      iex> create_affiliate(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_affiliate(attrs \\ %{}) do
-    %Affiliate{}
-    |> Affiliate.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
-  Updates a affiliate.
-
-  ## Examples
-
-      iex> update_affiliate(affiliate, %{field: new_value})
-      {:ok, %Affiliate{}}
-
-      iex> update_affiliate(affiliate, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_affiliate(%Affiliate{} = affiliate, attrs) do
-    affiliate
-    |> Affiliate.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a affiliate.
-
-  ## Examples
-
-      iex> delete_affiliate(affiliate)
-      {:ok, %Affiliate{}}
-
-      iex> delete_affiliate(affiliate)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_affiliate(%Affiliate{} = affiliate) do
-    Repo.delete(affiliate)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking affiliate changes.
-
-  ## Examples
-
-      iex> change_affiliate(affiliate)
-      %Ecto.Changeset{data: %Affiliate{}}
-
-  """
-  def change_affiliate(%Affiliate{} = affiliate, attrs \\ %{}) do
-    Affiliate.changeset(affiliate, attrs)
-  end
-
-  def add_class_to_group(class, group) do
-    group = Repo.preload(group, :classes)
-
-    class
-    |> Repo.preload(:group)
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_assoc(:group, group)
-    |> Repo.update!()
-  end
-
-  def add_new_class_to_group(group, params) do
-    params
-    |> Activities.create_class()
-    |> elem(1)
-    |> add_class_to_group(group)
-  end
-
-  def add_affiliate(group, affiliate) do
-    (group.affiliates ++ [affiliate]) |> Enum.map(&Ecto.Changeset.change/1)
-  end
-
-  def add_affiliate_to_group(affiliate, group) do
-    group
-    |> Repo.preload(:affiliates)
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_assoc(:affiliates, add_affiliate(group, affiliate))
-    |> Repo.update!()
-  end
-
-  def add_new_affiliate_to_group(group, params) do
-    params
-    |> create_affiliate()
-    |> elem(1)
-    |> add_affiliate_to_group(group)
-  end
-
-  def add_payment_to_affiliate(payment, affiliate, group) do
-    payment
-    |> Repo.preload([:group, :affiliate])
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_assoc(:group, group)
-    |> Ecto.Changeset.put_assoc(:affiliate, affiliate)
-    |> Repo.update!()
-  end
-
-  def add_new_payment_to_affiliate(affiliate, group, params) do
-    params
-    |> create_payment()
-    |> elem(1)
-    |> add_payment_to_affiliate(affiliate, group)
+  def change_student(%Student{} = student, attrs \\ %{}) do
+    Student.changeset(student, attrs)
   end
 
   def list_user_groups(%{id: id}) do
@@ -361,7 +212,8 @@ defmodule Juserver.Groups do
   end
 
   def create_user_group(%{name: name, cost: cost, user: user}) do
-    Repo.one(from u in User, where: u.id == ^user.id)
+    user
+    |> Repo.preload(:groups)
     |> Ecto.build_assoc(:groups, %{cost: cost, name: name})
     |> Repo.insert!()
   end
@@ -372,9 +224,12 @@ defmodule Juserver.Groups do
     )
   end
 
-  def list_user_affiliates(user) do
+  def list_user_students(user) do
+    IO.puts("list_user_students")
+    IO.inspect(user)
+
     Repo.all(
-      from a in Affiliate,
+      from a in Student,
         inner_join: u in assoc(a, :user),
         where: u.id == ^user.id
     )
@@ -382,39 +237,22 @@ defmodule Juserver.Groups do
 
   def get_affilite_user(%{user_id: user_id, id: id}) do
     Repo.one(
-      from a in Affiliate,
+      from a in Student,
         inner_join: g in assoc(a, :groups),
         inner_join: u in assoc(g, :user),
         where: u.id == ^user_id and a.id == ^id
     )
   end
 
-  # This is and old version of the function, now I'm creating the affiliate without the group
-  # def create_user_affiliate(%{email: email, user_id: user_id, name: name, group_id: group_id}) do
-  #   # TO-DO I'm not proud of this function. Improve.
-  #   group =
-  #     Repo.one(
-  #       from g in Group,
-  #         inner_join: u in assoc(g, :user),
-  #         where: u.id == ^user_id and g.id == ^group_id
-  #     )
-  #     |> Repo.preload(:affiliates)
-
-  #   affiliate = %Affiliate{email: email, name: name} |> Repo.insert!()
-
-  #   add_affiliate_to_group(affiliate, group)
-
-  #   affiliate
-  # end
-
-  def create_user_affiliate(%{name: name, email: email, user: user}) do
-    Repo.one(from u in User, where: u.id == ^user.id)
-    |> Ecto.build_assoc(:affiliates, %{name: name, email: email})
+  def create_user_student(%{name: name, email: email, user: user}) do
+    user
+    |> Repo.preload(:students)
+    |> Ecto.build_assoc(:students, %{name: name, email: email})
     |> Repo.insert!()
   end
 
-  def get_affiliate_payments(%{id: id}) do
-    Repo.all(from p in Payment, inner_join: a in assoc(p, :affiliate), where: a.id == ^id)
+  def get_student_payments(%{id: id}) do
+    Repo.all(from p in Payment, inner_join: a in assoc(p, :student), where: a.id == ^id)
   end
 
   def create_user_payment(args) do
@@ -422,29 +260,23 @@ defmodule Juserver.Groups do
     IO.inspect(args)
   end
 
-  def get_group_affiliates(args) do
+  def get_group_students(args) do
     IO.puts("llegue al context")
     IO.inspect(args)
   end
 
-  def get_affiliate_groups(args) do
+  def get_student_groups(args) do
     IO.puts("llegue al context")
     IO.inspect(args)
   end
 
   def delete_user_group(%{id: id}) do
-    IO.puts(id)
-
     Group
     |> Repo.get(id)
     |> Repo.delete()
   end
 
   def edit_user_group(%{id: id, cost: cost, name: name, user: user}) do
-    IO.puts("Estoy en el contexto con los datos")
-    IO.inspect(name)
-    IO.inspect(cost)
-
     Repo.one(
       from g in Group,
         inner_join: u in assoc(g, :user),
@@ -453,23 +285,173 @@ defmodule Juserver.Groups do
     |> update_group(%{cost: cost, name: name})
   end
 
-  def delete_user_affiliate(id, user) do
+  def delete_user_student(id, user) do
     Repo.one(
-      from a in Affiliate,
+      from a in Student,
         inner_join: u in assoc(a, :user),
         where: a.id == ^id and u.id == ^user.id
     )
     |> Repo.delete!()
   end
 
-  def edit_user_affiliate(%{id: id, name: name, email: email, user: user}) do
-    IO.puts("estyo en el contexto")
-
+  def edit_user_student(%{id: id, name: name, email: email, user: user}) do
     Repo.one(
-      from a in Affiliate,
+      from a in Student,
         inner_join: u in assoc(a, :user),
         where: a.id == ^id and u.id == ^user.id
     )
-    |> update_affiliate(%{name: name, email: email})
+    |> update_student(%{name: name, email: email})
+  end
+
+  def add_groups(student, groups) do
+    new_groups =
+      Enum.map(groups, fn %{id: id} ->
+        Repo.get(Group, String.to_integer(id)) |> Repo.preload(:students)
+      end)
+
+    merge = Enum.uniq(new_groups ++ student.groups)
+
+    student
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(:groups, merge)
+    |> Repo.update!()
+
+    {:ok, Repo.preload(student, :groups)}
+  end
+
+  def add_groups_to_student(%{student_id: id, groups: groups}, user) do
+    Helpers.get_user_student(id, user)
+    |> add_groups(groups)
+  end
+
+  def get_group(group_id, user) do
+    Repo.one(
+      from g in Group,
+        inner_join: u in assoc(g, :user),
+        where: g.id == ^group_id and u.id == ^user.id
+    )
+  end
+
+  def get_user_group(group_id, user) do
+    get_group(group_id, user)
+    |> Repo.preload(:students)
+  end
+
+  def add_many_classes(student, classes) do
+    new_classes =
+      Enum.map(classes, fn %{id: id} ->
+        Repo.get(Class, String.to_integer(id))
+        |> Repo.preload(:students)
+      end)
+
+    merge = Enum.uniq(new_classes ++ student.classes)
+
+    student
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(:classes, merge)
+    |> Repo.update!()
+
+    {:ok, Repo.preload(student, :classes)}
+  end
+
+  def add_classes_to_student(%{student_id: id, classes: classes}, user) do
+    Helpers.get_user_student(id, user)
+    |> Repo.preload(:classes)
+    |> add_many_classes(classes)
+  end
+
+  def remove_class(student, class_id) do
+    # I need to change how to add and delete assosiations.
+    new_groups = Enum.filter(student.classes, fn class -> class.id !== class_id end)
+
+    student
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(
+      :classes,
+      new_groups
+    )
+    |> Repo.update!()
+  end
+
+  def delete_student_class(%{class_id: class_id, student_id: student_id}, user) do
+    {id, _} = Integer.parse(class_id)
+
+    Helpers.get_user_student(student_id, user)
+    |> remove_class(id)
+  end
+
+  def delete_student_from_class(%{class_id: class_id, student_id: student_id}, user) do
+    {id, _} = Integer.parse(class_id)
+
+    Helpers.get_user_student(student_id, user)
+    |> remove_class(id)
+
+    Repo.get(Class, id) |> Repo.preload(:students)
+  end
+
+  def remove_group(student, group_id) do
+    new_groups = Enum.filter(student.groups, fn g -> g.id !== group_id end)
+
+    student
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(
+      :groups,
+      new_groups
+    )
+    |> Repo.update!()
+  end
+
+  def delete_student_group(%{group_id: group_id, student_id: student_id}, user) do
+    {id, _} = Integer.parse(group_id)
+
+    Helpers.get_user_student(student_id, user)
+    |> remove_group(id)
+  end
+
+  def add_many_students_to_group_from_list(group, students_list) do
+    new_students =
+      Enum.map(students_list, fn %{id: id} ->
+        Repo.get(Student, String.to_integer(id))
+        |> Repo.preload(:groups)
+      end)
+
+    add_many_students_to_group(group, Enum.uniq(new_students ++ group.students))
+  end
+
+  def add_many_students_to_group(group, students_list) do
+    group
+    |> Repo.preload(:students)
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(:students, students_list)
+    |> Repo.update!()
+
+    {:ok, Repo.preload(group, :students)}
+  end
+
+  def add_students_to_group(%{group_id: group_id, students: students_list}, user) do
+    get_user_group(group_id, user)
+    |> add_many_students_to_group_from_list(students_list)
+  end
+
+  def delete_student_from_user_group(group, student_id) do
+    new_students = Enum.filter(group.students, fn student -> student.id !== student_id end)
+
+    group
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(:students, new_students)
+    |> Repo.update!()
+
+    {:ok, Repo.preload(group, :students)}
+  end
+
+  def delete_student_from_group(%{group_id: group_id, student_id: student_id}, user) do
+    {id, _} = Integer.parse(student_id)
+
+    get_user_group(group_id, user)
+    |> delete_student_from_user_group(id)
+  end
+
+  def get_user_student(id, user) do
+    Helpers.get_user_student(id, user)
   end
 end

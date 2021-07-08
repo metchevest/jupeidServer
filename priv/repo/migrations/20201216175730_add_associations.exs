@@ -3,18 +3,25 @@ defmodule Juserver.Repo.Migrations.AddAssociations do
 
   def change do
 
-    create table(:groups_affiliates) do
-      add :group_id, references(:groups)
-      add :affiliate_id, references(:affiliates)
+    create table(:students_classes) do
+      add :student_id, references(:students)
+      add :class_id, references(:classes)
     end
 
-    create unique_index(:groups_affiliates, [:group_id, :affiliate_id])
+    create unique_index(:students_classes, [:class_id, :student_id])
+
+    create table(:groups_students) do
+      add :student_id, references(:students)
+      add :group_id, references(:groups)
+    end
+
+    create unique_index(:groups_students, [:group_id, :student_id])
 
     alter table(:groups) do
       add :user_id, references(:users)
     end
 
-    alter table(:affiliates) do
+    alter table(:students) do
       add :user_id, references(:users)
     end
 
@@ -24,8 +31,7 @@ defmodule Juserver.Repo.Migrations.AddAssociations do
     end
 
     alter table(:payments) do
-      add :group_id, references(:groups)
-      add :affiliate_id, references(:affiliates)
+      add :student_id, references(:students)
     end
 
 

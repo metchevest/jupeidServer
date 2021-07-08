@@ -1,13 +1,18 @@
 defmodule JuserverWeb.Schema do
   use Absinthe.Schema
-  alias Juserver.{Groups, Accounts, Activities}
+  alias Juserver.{Groups, Accounts, Activities, Payments}
 
-  # In case I need to use date and times :naive_datetime
-  # import_types Absinthe.Type.Custom
+  import_types(Absinthe.Type.Custom)
 
   import_types(JuserverWeb.Schema.Types)
 
-  alias JuserverWeb.{GroupsResolver, ClassResolver, AffiliateResolver, UserResolver}
+  alias JuserverWeb.{
+    GroupsResolver,
+    ClassResolver,
+    StudentResolver,
+    UserResolver,
+    PaymentResolver
+  }
 
   def context(ctx) do
     loader =
@@ -15,6 +20,7 @@ defmodule JuserverWeb.Schema do
       |> Dataloader.add_source(Accounts, Accounts.data())
       |> Dataloader.add_source(Groups, Groups.data())
       |> Dataloader.add_source(Activities, Activities.data())
+      |> Dataloader.add_source(Payments, Payments.data())
 
     Map.put(ctx, :loader, loader)
   end
@@ -40,32 +46,36 @@ defmodule JuserverWeb.Schema do
     end
 
     @desc "Get a user's group"
-    field :get_group, :group do
+    field :group, :group do
       arg(:id, non_null(:id))
-      resolve(&GroupsResolver.get_group/3)
+      resolve(&GroupsResolver.get_user_group/2)
     end
 
     @desc "List all the user's assistants"
-    field :assistants, non_null(list_of(non_null(:affiliate))) do
-      resolve(&AffiliateResolver.all_affiliates/2)
+    field :students, non_null(list_of(non_null(:student))) do
+      resolve(&StudentResolver.all_students/2)
     end
 
     @desc "Get a user's assitant"
-    field :get_assistant, :affiliate do
-      arg(:user_id, non_null(:id))
+    field :student, :student do
       arg(:id, non_null(:id))
-      resolve(&AffiliateResolver.get_affiliate/3)
+      resolve(&StudentResolver.get_user_student/2)
     end
 
     @desc "List all the user's classes"
-    field :classes, non_null(list_of(non_null(:class))) do
+    field :classes, list_of(:class) do
       resolve(&ClassResolver.all_classes/2)
     end
 
     @desc "Get a user's class"
-    field :get_class, :class do
+    field :class, :class do
       arg(:id, non_null(:id))
-      resolve(&ClassResolver.get_class/2)
+      resolve(&ClassResolver.get_user_class/2)
+    end
+
+    @desc "Get user's payments"
+    field :payments, list_of(:payment) do
+      resolve(&PaymentResolver.all_user_payments/2)
     end
   end
 
@@ -100,6 +110,12 @@ defmodule JuserverWeb.Schema do
       resolve(&UserResolver.logout/2)
     end
 
+    @desc "Set tour"
+    field :tour, :user do
+      arg(:tour, :boolean)
+      resolve(&UserResolver.set_user_tour/2)
+    end
+
     @desc "Create a new group"
     field :create_group, :group do
       arg(:cost, non_null(:float))
@@ -107,20 +123,11 @@ defmodule JuserverWeb.Schema do
       resolve(&GroupsResolver.create_group/2)
     end
 
-    @desc "Create a new affiliate"
-    field :create_assistant, :affiliate do
+    @desc "Create a new student"
+    field :create_student, :student do
       arg(:email, :string)
       arg(:name, non_null(:string))
-      resolve(&AffiliateResolver.create_affiliate/2)
-    end
-
-    @desc "Create a new payment for an affiliate"
-    field :create_payment, :payment do
-      arg(:affiliate_id, non_null(:id))
-      arg(:group_id, non_null(:id))
-      arg(:amount, non_null(:float))
-      arg(:month, non_null(:integer))
-      resolve(&AffiliateResolver.create_payment/3)
+      resolve(&StudentResolver.create_student/2)
     end
 
     @desc "Create a new Class"
@@ -130,6 +137,14 @@ defmodule JuserverWeb.Schema do
       arg(:name, non_null(:string))
       arg(:activity, :string)
       resolve(&ClassResolver.create_user_class/2)
+    end
+
+    @desc "Create a new payment for an student"
+    field :create_payment, :student do
+      arg(:student_id, non_null(:id))
+      arg(:month, non_null(:integer))
+      arg(:year, non_null(:integer))
+      resolve(&PaymentResolver.create_payment/2)
     end
 
     @desc "Delete a group"
@@ -144,10 +159,10 @@ defmodule JuserverWeb.Schema do
       resolve(&ClassResolver.delete_class/2)
     end
 
-    @desc "Delete an Assistant"
-    field :delete_assistant, :affiliate do
+    @desc "Delete a Student"
+    field :delete_student, :student do
       arg(:id, non_null(:id))
-      resolve(&AffiliateResolver.delete_user_affiliate/2)
+      resolve(&StudentResolver.delete_user_student/2)
     end
 
     @desc "Edit a group"
@@ -168,12 +183,78 @@ defmodule JuserverWeb.Schema do
       resolve(&ClassResolver.edit_user_class/2)
     end
 
-    @desc "Edit a affiliate"
-    field :edit_assistant, :affiliate do
+    @desc "Edit a student"
+    field :edit_student, :student do
       arg(:id, non_null(:id))
       arg(:name, :string)
       arg(:email, :string)
       resolve(&GroupsResolver.edit_user_assistant/2)
+    end
+
+    @desc "Add Students to Group"
+    field :add_students_to_group, :group do
+      arg(:group_id, non_null(:id))
+      arg(:students, list_of(:student_input))
+      resolve(&GroupsResolver.add_students_to_group/2)
+    end
+
+    @desc "Add Students to Class"
+    field :add_students_to_class, :class do
+      arg(:class_id, non_null(:id))
+      arg(:students, list_of(:student_input))
+      resolve(&ClassResolver.add_students_to_class/2)
+    end
+
+    @desc "Add groups to a Student"
+    field :add_student_groups, :student do
+      arg(:student_id, non_null(:id))
+      arg(:groups, list_of(:group_input))
+      resolve(&StudentResolver.add_student_groups/2)
+    end
+
+    @desc "Add classes to a Student"
+    field :add_student_classes, :student do
+      arg(:student_id, non_null(:id))
+      arg(:classes, list_of(:class_input))
+      resolve(&StudentResolver.add_student_classes/2)
+    end
+
+    @desc "Delete a Class from a Student"
+    field :delete_class_from_student, :student do
+      arg(:student_id, non_null(:id))
+      arg(:class_id, non_null(:id))
+      resolve(&StudentResolver.delete_class_from_student/2)
+    end
+
+    @desc "Delete a Group from a Student"
+    field :delete_group_from_student, :student do
+      arg(:student_id, non_null(:id))
+      arg(:group_id, non_null(:id))
+      resolve(&StudentResolver.delete_student_from_group/2)
+    end
+
+    # This is the same mutation than :delete_student_group but the return
+    # is different so the Apollo's cache update itself ?
+    @desc "Delete a Student from a Group"
+    field :delete_student_from_group, :group do
+      arg(:group_id, non_null(:id))
+      arg(:student_id, non_null(:id))
+      resolve(&GroupsResolver.delete_student_from_group/2)
+    end
+
+    # The same case as above
+    @desc "Delete a Student from a Class"
+    field :delete_student_from_class, :class do
+      arg(:student_id, non_null(:id))
+      arg(:class_id, non_null(:id))
+      resolve(&StudentResolver.delete_student_from_class/2)
+    end
+
+    # This mutation may be used to replace "create_payment" with a list of one student
+    @desc "Add a payment to many Student"
+    field :create_many_payments, list_of(:student) do
+      arg(:students, list_of(:student_input))
+      resolve(&PaymentResolver.create_many_payments/2)
     end
   end
 end

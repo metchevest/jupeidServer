@@ -10,6 +10,7 @@ defmodule Juserver.Repo.Migrations.CreateUsers do
       add :email, :string
       add :password, :string
       add :token, :text
+      add :tour, :boolean
 
       timestamps()
     end

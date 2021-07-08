@@ -14,7 +14,7 @@ alias Juserver.Repo
 
 alias Juserver.Accounts
 alias Juserver.{Accounts.User, Activities.Class}
-alias Juserver.Gorups.{Affiliate, Group, Payment}
+alias Juserver.Gorups.{Student, Group, Payment}
 
 c1 = %Class{activity: "yoga", day: "Monday", hour: 16.00} |> Repo.insert()
 c2 = %Class{activity: "yoga", day: "Thursday", hour: 16.00} |> Repo.insert()
@@ -36,10 +36,10 @@ c6 = %Class{activity: "meditacion", day: "Tuesday", hour: 19.00} |> Repo.insert(
 
 # group2 = %Group{cost: 1900.00}
 
-# afc1 = %Affiliate{name: "Mauricio", email: "mauricioet@gmail.com"} |> Repo.insert!()
-# afc2 = %Affiliate{name: "Mauricio", email: "mauricioet@gmail.com"} |> Repo.insert!()
-# afc3 = %Affiliate{name: "Mauricio", email: "mauricioet@gmail.com"} |> Repo.insert!()
-# afc4 = %Affiliate{name: "Mauricio", email: "mauricioet@gmail.com"} |> Repo.insert!()
+# afc1 = %Student{name: "Mauricio", email: "mauricioet@gmail.com"} |> Repo.insert!()
+# afc2 = %Student{name: "Mauricio", email: "mauricioet@gmail.com"} |> Repo.insert!()
+# afc3 = %Student{name: "Mauricio", email: "mauricioet@gmail.com"} |> Repo.insert!()
+# afc4 = %Student{name: "Mauricio", email: "mauricioet@gmail.com"} |> Repo.insert!()
 
 # class1 = %Class{activity: "yoga", day: "Monday", hour: 16.00} |> Repo.insert()
 
@@ -50,6 +50,6 @@ c6 = %Class{activity: "meditacion", day: "Tuesday", hour: 19.00} |> Repo.insert(
 # g1 = %Group{cost: 1200.00}
 # g2 = %Group{cost: 1300.00}
 
-# afp1 = %Affiliate{name: "Mauricio", email: "mauricioet@gmail.com"} |> Repo.insert!()
-# afp2 = %Affiliate{name: "Mauricio", email: "mauricioet@gmail.com"} |> Repo.insert!()
-# afp3 = %Affiliate{name: "Mauricio", email: "mauricioet@gmail.com"} |> Repo.insert!()
+# afp1 = %Student{name: "Mauricio", email: "mauricioet@gmail.com"} |> Repo.insert!()
+# afp2 = %Student{name: "Mauricio", email: "mauricioet@gmail.com"} |> Repo.insert!()
+# afp3 = %Student{name: "Mauricio", email: "mauricioet@gmail.com"} |> Repo.insert!()

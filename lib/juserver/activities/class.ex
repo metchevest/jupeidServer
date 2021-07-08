@@ -8,7 +8,11 @@ defmodule Juserver.Activities.Class do
     field :hour, :float
     field :name, :string
 
-    belongs_to :group, Juserver.Groups.Group
+    many_to_many :students, Juserver.Groups.Student,
+      join_through: "students_classes",
+      on_replace: :delete,
+      on_delete: :delete_all
+
     belongs_to :user, Juserver.Accounts.User
 
     timestamps()

@@ -10,6 +10,7 @@ defmodule Juserver.Accounts do
 
   alias Juserver.Accounts.User
   alias Juserver.Groups
+  alias Juserver.Sample_Data
 
   def data() do
     Dataloader.Ecto.new(Juserver.Repo, query: &query/2)
@@ -172,11 +173,14 @@ defmodule Juserver.Accounts do
   def create_new_user(%{email: email, password: password}) do
     case check_new_email(email) do
       true -> {:error, "E-mail already in use"}
-      false -> send_unique_mail_user(create_user(%{email: email, password: password}))
+      false -> send_unique_mail_user(create_user(%{email: email, password: password, tour: true}))
     end
   end
 
   def send_unique_mail_user({:ok, user}) do
+    # Before return the user, we create sample data to show.
+    IO.puts("About to create test data")
+    Sample_Data.create_test_data(user)
     {:ok, user}
   end
 
@@ -189,5 +193,12 @@ defmodule Juserver.Accounts do
       [] -> false
       _list -> true
     end
+  end
+
+  def set_turn(tour, user) do
+    # update the user by setting the tour flag to tour
+
+    update_user(user, %{tour: tour})
+    |> Repo.update!()
   end
 end
